@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: "en-US"
+
+reviews:
+  profile: "assertive"
+
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+
+    base_branches:
+      - main
+      - develop
+
+  path_instructions:
+    - path: "apps/backend/**"
+      instructions: |
+        Review as a senior backend engineer.
+
+        Prioritize:
+        - Authentication and authorization
+        - Input validation
+        - API contract changes
+        - Performance regressions
+        - Breaking changes
+        - Security vulnerabilities
+
+    - path: "apps/frontend/**"
+      instructions: |
+        Review as a senior frontend engineer.
+
+        Prioritize:
+        - Accessibility
+        - User experience regressions
+        - State management correctness
+        - API integration issues
+        - XSS vulnerabilities
+
+    - path: "apps/contracts/**"
+      instructions: |
+        Review as a senior smart contract auditor.
+
+        Prioritize:
+        - Access control
+        - Reentrancy
+        - Upgradeability safety
+        - State transition correctness
+        - Event emission correctness
+
+    - path: "packages/**"
+      instructions: |
+        Review shared code for:
+        - Backward compatibility
+        - Type safety
+        - Breaking API changes
+        - Cross-application impact
+
+chat:
+  auto_reply: true
