@@ -3,16 +3,22 @@ import crypto from 'crypto';
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
 
+const SALT = 'afri-dollar-salt-pbkdf2';
+const ITERATIONS = 100000;
+const KEY_LENGTH = 32;
+const DIGEST = 'sha256';
+
 /**
  * Retrieves the 32-byte encryption key from the environment.
  * Throws an error if ENCRYPTION_KEY is not configured.
+ * Derives the key using PBKDF2 with a fixed salt and 100,000 iterations.
  */
 function getEncryptionKey(): Buffer {
   const secret = process.env.ENCRYPTION_KEY;
   if (!secret) {
     throw new Error('ENCRYPTION_KEY environment variable is not configured.');
   }
-  return crypto.createHash('sha256').update(secret).digest();
+  return crypto.pbkdf2Sync(secret, SALT, ITERATIONS, KEY_LENGTH, DIGEST);
 }
 
 /**
