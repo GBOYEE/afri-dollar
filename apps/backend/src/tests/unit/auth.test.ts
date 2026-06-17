@@ -1,3 +1,4 @@
+import { UserRole } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 
 import { AuthService } from '../../services/auth.service';
@@ -53,7 +54,7 @@ describe('AuthService Unit Tests', () => {
     const payload = {
       userId: 'user-123',
       email: 'test@example.com',
-      role: 'user',
+      role: UserRole.USER,
     };
 
     it('should generate and verify access tokens', () => {
