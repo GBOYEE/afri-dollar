@@ -20,13 +20,13 @@ export default function LoginPage(): JSX.Element {
     setError(null);
     void (async (): Promise<void> => {
       try {
-        // Mock API call validation/delay
-        await new Promise((resolve) => setTimeout(resolve, 800));
-
-        // Simple validation
+        // Simple validation first
         if (!email || password.length < 6) {
           throw new Error('Please enter a valid email and a password of at least 6 characters.');
         }
+
+        // Mock API call validation/delay
+        await new Promise((resolve) => setTimeout(resolve, 800));
 
         // Store mock token & update global wallet state
         setAuthToken('mock-auth-token-xyz123');
@@ -47,7 +47,11 @@ export default function LoginPage(): JSX.Element {
       <div className="z-10 max-w-md w-full items-center justify-center font-mono text-sm border p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold mb-6 text-center">Login to AfriDollar</h1>
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-xs">
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-xs"
+          >
             {error}
           </div>
         )}
