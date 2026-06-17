@@ -29,7 +29,7 @@ const batchIdParamSchema = z.object({
 function getErrorResponse(error: Error): { status: number; message: string } {
   const errorMap: Record<string, { status: number; message: string }> = {
     'Wallet not found': { status: 404, message: 'Wallet not found' },
-    'Wallet does not belong to user': { status: 403, message: 'Wallet does not belong to user' },
+    'Wallet does not belong to user': { status: 404, message: 'Wallet not found' },
     'Payroll batch not found': { status: 404, message: 'Payroll batch not found' },
     'Cannot add items to a batch that is not pending approval': {
       status: 400,

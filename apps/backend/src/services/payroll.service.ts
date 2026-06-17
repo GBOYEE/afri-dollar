@@ -281,15 +281,18 @@ export const PayrollService = {
     batchId: string,
     userId: string
   ): Promise<PayrollBatch & { items: PayrollItem[] }> {
-    await assertBatchOwnedByUser(batchId, userId);
-
     const batch = await prisma.payrollBatch.findUnique({
       where: { id: batchId },
-      include: { items: true },
+      include: {
+        items: true,
+        wallet: { select: { userId: true } },
+      },
     });
-    if (!batch) {
+
+    if (!batch || batch.wallet.userId !== userId) {
       throw new Error('Payroll batch not found');
     }
+
     return {
       ...batch,
       items: batch.items.map(mapToPayrollItem),

@@ -428,6 +428,79 @@ describe('PayrollService', () => {
         'Only pending batches can be approved'
       );
     });
+
+    it('should throw an error if the batch belongs to another user', async () => {
+      mockPayrollBatchFindUnique.mockResolvedValue({
+        id: 'batch-123',
+        status: 'pending',
+        wallet: { userId: 'other-user' },
+      });
+
+      await expect(PayrollService.approvePayrollBatch('batch-123', mockUserId)).rejects.toThrow(
+        'Payroll batch not found'
+      );
+
+      expect(mockPayrollBatchUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getPayrollBatch', () => {
+    it('should return batch with items when owned by user', async () => {
+      const mockBatch = {
+        id: 'batch-123',
+        name: 'June Payroll',
+        status: 'pending',
+        wallet: { userId: mockUserId },
+        items: [
+          {
+            id: 'item-1',
+            payrollBatchId: 'batch-123',
+            recipientAddress: mockPublicKey,
+            amount: '100.00',
+            assetCode: 'USDC',
+            assetIssuer: mockAssetIssuer,
+            memo: null,
+            status: 'pending',
+            stellarTxId: null,
+            errorMessage: null,
+          },
+        ],
+      };
+
+      mockPayrollBatchFindUnique.mockResolvedValue(mockBatch);
+
+      const result = await PayrollService.getPayrollBatch('batch-123', mockUserId);
+
+      expect(mockPayrollBatchFindUnique).toHaveBeenCalledWith({
+        where: { id: 'batch-123' },
+        include: {
+          items: true,
+          wallet: { select: { userId: true } },
+        },
+      });
+      expect(result.id).toBe('batch-123');
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].assetIssuer).toBe(mockAssetIssuer);
+    });
+
+    it('should throw an error if the batch belongs to another user', async () => {
+      mockPayrollBatchFindUnique.mockResolvedValue({
+        id: 'batch-123',
+        wallet: { userId: 'other-user' },
+      });
+
+      await expect(PayrollService.getPayrollBatch('batch-123', mockUserId)).rejects.toThrow(
+        'Payroll batch not found'
+      );
+    });
+
+    it('should throw an error if the batch does not exist', async () => {
+      mockPayrollBatchFindUnique.mockResolvedValue(null);
+
+      await expect(PayrollService.getPayrollBatch('invalid-batch', mockUserId)).rejects.toThrow(
+        'Payroll batch not found'
+      );
+    });
   });
 
   describe('getPayrollBatches', () => {
@@ -439,6 +512,19 @@ describe('PayrollService', () => {
 
       expect(mockPayrollBatchFindMany).toHaveBeenCalledWith({
         where: { wallet: { userId: mockUserId } },
+        orderBy: { createdAt: 'desc' },
+      });
+      expect(result).toEqual(mockBatches);
+    });
+
+    it('should filter by walletId when provided', async () => {
+      const mockBatches = [{ id: 'batch-123', name: 'June Payroll' }];
+      mockPayrollBatchFindMany.mockResolvedValue(mockBatches);
+
+      const result = await PayrollService.getPayrollBatches(mockUserId, mockWalletId);
+
+      expect(mockPayrollBatchFindMany).toHaveBeenCalledWith({
+        where: { wallet: { userId: mockUserId }, walletId: mockWalletId },
         orderBy: { createdAt: 'desc' },
       });
       expect(result).toEqual(mockBatches);
@@ -515,6 +601,30 @@ describe('PayrollService', () => {
           },
         ],
       };
+    });
+
+    it('should throw an error if the batch belongs to another user', async () => {
+      mockPayrollBatchFindUnique.mockResolvedValue({
+        ...mockBatch,
+        wallet: {
+          ...mockBatch.wallet,
+          userId: 'other-user',
+        },
+      });
+
+      await expect(PayrollService.processPayrollBatch('batch-123', mockUserId)).rejects.toThrow(
+        'Payroll batch not found'
+      );
+
+      expect(mockAuditLogCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            action: 'payroll_batch_process_failed',
+            success: false,
+          }),
+        })
+      );
+      expect(mockPayrollBatchUpdateMany).not.toHaveBeenCalled();
     });
 
     it('should successfully submit batched transactions', async () => {

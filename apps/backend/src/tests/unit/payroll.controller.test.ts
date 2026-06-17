@@ -21,6 +21,7 @@ const mockCreatePayrollBatch = PayrollService.createPayrollBatch as jest.Mock;
 const mockGetPayrollBatches = PayrollService.getPayrollBatches as jest.Mock;
 const mockGetPayrollBatch = PayrollService.getPayrollBatch as jest.Mock;
 const mockAddPayrollItem = PayrollService.addPayrollItem as jest.Mock;
+const mockApprovePayrollBatch = PayrollService.approvePayrollBatch as jest.Mock;
 const mockProcessPayrollBatch = PayrollService.processPayrollBatch as jest.Mock;
 const mockGetPayrollHistory = PayrollService.getPayrollHistory as jest.Mock;
 
@@ -72,6 +73,22 @@ describe('PayrollController', () => {
     expect(mockGetPayrollBatches).not.toHaveBeenCalled();
   });
 
+  it('returns payroll batches for the authenticated user', async () => {
+    const req = createAuthRequest();
+    const res = createMockResponse();
+    const mockBatches = [
+      { id: 'batch-1', name: 'June Payroll', status: 'pending' },
+      { id: 'batch-2', name: 'July Payroll', status: 'approved' },
+    ];
+    mockGetPayrollBatches.mockResolvedValue(mockBatches);
+
+    await PayrollController.listBatches(req, res as unknown as Response);
+
+    expect(mockGetPayrollBatches).toHaveBeenCalledWith('user-1');
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ success: true, data: mockBatches });
+  });
+
   it('creates a payroll batch and forwards userId to the service', async () => {
     const req = createAuthRequest({
       body: { name: 'June Payroll', description: 'June payouts', walletId: 'wallet-1' },
@@ -106,7 +123,7 @@ describe('PayrollController', () => {
     expect(mockCreatePayrollBatch).not.toHaveBeenCalled();
   });
 
-  it('maps wallet ownership errors to 403', async () => {
+  it('maps wallet ownership errors to 404 to avoid revealing wallet existence', async () => {
     const req = createAuthRequest({
       body: { name: 'June Payroll', walletId: 'wallet-1' },
     });
@@ -115,8 +132,8 @@ describe('PayrollController', () => {
 
     await PayrollController.createBatch(req, res as unknown as Response);
 
-    expect(res.statusCode).toBe(403);
-    expect(res.body).toEqual({ success: false, error: 'Wallet does not belong to user' });
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toEqual({ success: false, error: 'Wallet not found' });
   });
 
   it('adds a payroll item using batch id from params', async () => {
@@ -154,6 +171,42 @@ describe('PayrollController', () => {
     expect(mockGetPayrollBatch).toHaveBeenCalledWith('missing-batch', 'user-1');
     expect(res.statusCode).toBe(404);
     expect(res.body).toEqual({ success: false, error: 'Payroll batch not found' });
+  });
+
+  it('approves a payroll batch and forwards userId to the service', async () => {
+    const req = createAuthRequest({ params: { id: 'batch-1' } });
+    const res = createMockResponse();
+    const mockBatch = { id: 'batch-1', name: 'June Payroll', status: 'approved' };
+    mockApprovePayrollBatch.mockResolvedValue(mockBatch);
+
+    await PayrollController.approveBatch(req, res as unknown as Response);
+
+    expect(mockApprovePayrollBatch).toHaveBeenCalledWith('batch-1', 'user-1');
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ success: true, data: mockBatch });
+  });
+
+  it('maps approve batch not found errors to 404', async () => {
+    const req = createAuthRequest({ params: { id: 'missing-batch' } });
+    const res = createMockResponse();
+    mockApprovePayrollBatch.mockRejectedValue(new Error('Payroll batch not found'));
+
+    await PayrollController.approveBatch(req, res as unknown as Response);
+
+    expect(mockApprovePayrollBatch).toHaveBeenCalledWith('missing-batch', 'user-1');
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toEqual({ success: false, error: 'Payroll batch not found' });
+  });
+
+  it('maps non-pending approve errors to 400', async () => {
+    const req = createAuthRequest({ params: { id: 'batch-1' } });
+    const res = createMockResponse();
+    mockApprovePayrollBatch.mockRejectedValue(new Error('Only pending batches can be approved'));
+
+    await PayrollController.approveBatch(req, res as unknown as Response);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ success: false, error: 'Only pending batches can be approved' });
   });
 
   it('maps double-processing errors to 409', async () => {
