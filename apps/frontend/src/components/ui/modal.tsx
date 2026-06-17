@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import { MouseEvent, ReactNode, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export interface ModalProps {
@@ -50,7 +50,7 @@ export function ModalBody({
   className?: string;
 }): JSX.Element {
   return (
-    <div className={`px-6 py-4 text-slate-600 dark:text-slate-300 text-sm md:text-base ${className}`}>
+    <div className={`px-6 py-4 text-slate-600 dark:text-slate-350 text-sm md:text-base ${className}`}>
       {children}
     </div>
   );
@@ -172,7 +172,7 @@ export function Modal({
     full: 'max-w-full m-4 h-[calc(100vh-2rem)]',
   };
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
+  const handleOverlayClick = (e: MouseEvent<HTMLDivElement>) => {
     if (closeOnOverlayClick && e.target === e.currentTarget) {
       onClose();
     }

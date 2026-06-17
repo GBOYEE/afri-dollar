@@ -1,4 +1,4 @@
-import React, { ButtonHTMLAttributes, ReactNode, forwardRef } from 'react';
+import { ButtonHTMLAttributes, ReactNode, forwardRef } from 'react';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost';
@@ -71,6 +71,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const isBtnDisabled = disabled || loading;
+    const variantClass = variants[variant] || variants.primary;
 
     return (
       <button
@@ -78,7 +79,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         type={type}
         disabled={isBtnDisabled}
         aria-busy={loading}
-        className={`${baseStyle} ${sizes[size]} ${variants[variant]} ${className}`}
+        className={`${baseStyle} ${sizes[size]} ${variantClass} ${className}`}
         {...props}
       >
         {loading && <Spinner />}

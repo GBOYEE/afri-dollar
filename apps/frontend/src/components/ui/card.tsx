@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, forwardRef } from 'react';
+import { HTMLAttributes, forwardRef } from 'react';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hoverable?: boolean;

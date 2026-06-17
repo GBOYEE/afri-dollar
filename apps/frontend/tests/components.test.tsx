@@ -1,13 +1,13 @@
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent, act } from '@testing-library/react';
-import React, { createRef } from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { createRef } from 'react';
 
-import { Button } from '../src/components/ui/button';
-import { Input } from '../src/components/ui/input';
-import { Select } from '../src/components/ui/select';
-import { Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '../src/components/ui/modal';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../src/components/ui/card';
 import { Avatar } from '../src/components/ui/avatar';
+import { Button } from '../src/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../src/components/ui/card';
+import { Input } from '../src/components/ui/input';
+import { Modal, ModalBody, ModalFooter, ModalHeader, ModalTitle } from '../src/components/ui/modal';
+import { Select } from '../src/components/ui/select';
 
 describe('UI Component Library Tests', () => {
   

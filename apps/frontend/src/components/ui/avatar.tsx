@@ -1,4 +1,4 @@
-import React, { ImgHTMLAttributes, useEffect, useState } from 'react';
+import { ImgHTMLAttributes, useEffect, useState } from 'react';
 
 export interface AvatarProps extends ImgHTMLAttributes<HTMLImageElement> {
   name?: string;
