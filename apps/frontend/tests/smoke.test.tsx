@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
+
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 
 import Home from '../src/app/page';
 import { Button } from '../src/components/ui/button';
@@ -22,7 +22,7 @@ describe('Frontend Smoke Tests', () => {
     render(<Button variant="primary">Click me</Button>);
     const button = screen.getByRole('button', { name: /click me/i });
     expect(button).toBeInTheDocument();
-    expect(button).toHaveClass('bg-blue-600');
+    expect(button).toHaveClass('bg-primary-600');
   });
 
   it('renders outline button', () => {
