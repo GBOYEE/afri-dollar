@@ -45,6 +45,9 @@ app.use('/api/v1/fx', fxRouter);
 // Payroll routes
 app.use('/api/v1/payroll', payrollRouter);
 
+// Treasury routes (admin only)
+app.use('/api/v1/treasury', treasuryRouter);
+
 // Database connection check and server start
 async function startServer(): Promise<void> {
   try {
