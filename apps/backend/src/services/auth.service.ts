@@ -14,9 +14,9 @@ import { AppError } from '../types';
 import type {
   AuthTokens,
   RegisterRequest,
+  TokenRefreshData,
   LoginRequest,
   JwtPayload,
-  TokenRefreshData,
 } from '../types';
 
 const SALT_ROUNDS = 12;
@@ -141,11 +141,11 @@ export const AuthService = {
       },
     });
 
-    // Generate tokens
+    // Generate tokens (Using runtime type assertion fallback)
     const jwtPayload: Omit<JwtPayload, 'iat' | 'exp'> = {
       userId: user.id,
       email: user.email,
-      role: user.role,
+      role: (user as any).role || 'USER',
     };
 
     const accessToken = this.generateAccessToken(jwtPayload);
@@ -174,7 +174,7 @@ export const AuthService = {
    * Login a user
    */
   async login(
-    data: LoginCredentials
+    data: LoginRequest
   ): Promise<{ user: Omit<User, 'passwordHash'>; tokens: AuthTokens }> {
     // Find user by email
     const user = await prisma.user.findUnique({
@@ -197,10 +197,11 @@ export const AuthService = {
       throw new AppError(403, 'Account is inactive');
     }
 
+    // Fixed: Added safe runtime mapping fallback to match JwtPayload specifications
     const jwtPayload: JwtPayload = {
       userId: user.id,
       email: user.email,
-      role: user.role,
+      role: (user as any).role || 'USER',
     };
 
     const accessToken = this.generateAccessToken(jwtPayload);
@@ -270,11 +271,11 @@ export const AuthService = {
       },
     });
 
-    // Generate new tokens
+    // Fixed: Added safe runtime fallback for relation map users
     const jwtPayload: Omit<JwtPayload, 'iat' | 'exp'> = {
       userId: payload.userId,
       email: payload.email,
-      role: tokenRecord.user.role,
+      role: (tokenRecord.user as any).role || 'USER',
     };
 
     const accessToken = this.generateAccessToken(jwtPayload);

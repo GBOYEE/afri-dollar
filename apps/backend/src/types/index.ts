@@ -47,6 +47,7 @@ export type UserResponse = {
 export type JwtPayload = {
   userId: string;
   email: string;
+  role: string;
   iat?: number;
   exp?: number;
 };
