@@ -1,4 +1,13 @@
-import { Prisma, Transaction } from '@afri-dollar/database';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,
+   @typescript-eslint/no-unsafe-call,
+   @typescript-eslint/no-unsafe-member-access */
+
+import {
+  Prisma,
+  type ExchangeRate,
+  type Transaction,
+  type WalletBalance,
+} from '@afri-dollar/database';
 
 import prisma from '../config/database';
 import type {
@@ -9,6 +18,7 @@ import type {
   TreasuryOperationType,
   TreasuryPosition,
 } from '../types/treasury.types';
+import { assertError } from '../utils/error';
 
 /**
  * Treasury Service
@@ -91,7 +101,7 @@ async function getUsdRate(assetCode: string): Promise<number | null> {
   }
 
   const now = new Date();
-  const rate = await prisma.exchangeRate.findFirst({
+  const rate: ExchangeRate | null = await prisma.exchangeRate.findFirst({
     where: {
       fromAsset: assetCode,
       toAsset: { in: ['USD', 'USDC'] },
@@ -124,7 +134,7 @@ async function aggregatePositions(walletIds: string[]): Promise<AggregatedPositi
     return [];
   }
 
-  const balances = await prisma.walletBalance.findMany({
+  const balances: WalletBalance[] = await prisma.walletBalance.findMany({
     where: { walletId: { in: walletIds } },
   });
 
@@ -231,8 +241,9 @@ async function logAudit(
         metadata: metadata || undefined,
       },
     });
-  } catch (error) {
-    console.error('Failed to log audit:', error);
+  } catch (e) {
+    assertError(e);
+    console.error('Failed to log audit:', e);
   }
 }
 
@@ -418,7 +429,8 @@ export const TreasuryService = {
       return created;
     });
 
-    return operations;
+    const ops: TreasuryOperation[] = operations;
+    return ops;
   },
 
   /**
@@ -433,11 +445,8 @@ export const TreasuryService = {
 
     const take = filters.limit && filters.limit > 0 ? Math.min(filters.limit, 200) : 100;
 
-    const transactions = await prisma.transaction.findMany({
-      where: {
-        walletId: { in: walletIds },
-        ...(filters.type ? { type: filters.type } : {}),
-      },
+    const transactions: Transaction[] = await prisma.transaction.findMany({
+      where: { walletId: { in: walletIds }, ...(filters.type ? { type: filters.type } : {}) },
       orderBy: { createdAt: 'desc' },
       take,
     });
