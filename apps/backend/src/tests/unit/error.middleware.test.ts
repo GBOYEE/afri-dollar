@@ -55,24 +55,24 @@ describe('Error Classes', () => {
     expect(err instanceof AppError).toBe(true);
   });
 
-  it('AuthorizationError defaults to 403 / AUTH_003', () => {
+  it('AuthorizationError defaults to 403 / AUTH_004', () => {
     const err = new AuthorizationError();
     expect(err.statusCode).toBe(403);
-    expect(err.code).toBe('AUTH_003');
+    expect(err.code).toBe('AUTH_004');
     expect(err.message).toBe('Access denied');
   });
 
-  it('NotFoundError defaults to 404 / WALLET_001', () => {
+  it('NotFoundError defaults to 404 / NOT_FOUND_001', () => {
     const err = new NotFoundError();
     expect(err.statusCode).toBe(404);
-    expect(err.code).toBe('WALLET_001');
+    expect(err.code).toBe('NOT_FOUND_001');
     expect(err.message).toBe('Resource not found');
   });
 
-  it('ValidationError defaults to 422 / TXN_002', () => {
+  it('ValidationError defaults to 422 / VALIDATION_001', () => {
     const err = new ValidationError();
     expect(err.statusCode).toBe(422);
-    expect(err.code).toBe('TXN_002');
+    expect(err.code).toBe('VALIDATION_001');
     expect(err.message).toBe('Validation failed');
   });
 });
@@ -83,12 +83,15 @@ describe('ERROR_CODES', () => {
       'AUTH_001',
       'AUTH_002',
       'AUTH_003',
+      'AUTH_004',
       'WALLET_001',
       'WALLET_002',
       'TXN_001',
       'TXN_002',
       'FX_001',
       'COMPLIANCE_001',
+      'NOT_FOUND_001',
+      'VALIDATION_001',
       'SERVER_001',
     ];
     for (const code of required) {

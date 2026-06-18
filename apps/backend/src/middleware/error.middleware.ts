@@ -4,12 +4,15 @@ export const ERROR_CODES = {
   AUTH_001: 'Invalid credentials',
   AUTH_002: 'Token expired',
   AUTH_003: 'Token invalid',
+  AUTH_004: 'Insufficient permissions',
   WALLET_001: 'Wallet not found',
   WALLET_002: 'Insufficient balance',
   TXN_001: 'Transaction failed',
   TXN_002: 'Invalid transaction',
   FX_001: 'Invalid rate',
   COMPLIANCE_001: 'KYC required',
+  NOT_FOUND_001: 'Resource not found',
+  VALIDATION_001: 'Validation failed',
   SERVER_001: 'Internal server error',
 } as const;
 
@@ -36,19 +39,19 @@ export class AuthenticationError extends AppError {
 }
 
 export class AuthorizationError extends AppError {
-  constructor(message = 'Access denied', code: ErrorCode = 'AUTH_003') {
+  constructor(message = 'Access denied', code: ErrorCode = 'AUTH_004') {
     super(message, 403, code);
   }
 }
 
 export class NotFoundError extends AppError {
-  constructor(message = 'Resource not found', code: ErrorCode = 'WALLET_001') {
+  constructor(message = 'Resource not found', code: ErrorCode = 'NOT_FOUND_001') {
     super(message, 404, code);
   }
 }
 
 export class ValidationError extends AppError {
-  constructor(message = 'Validation failed', code: ErrorCode = 'TXN_002') {
+  constructor(message = 'Validation failed', code: ErrorCode = 'VALIDATION_001') {
     super(message, 422, code);
   }
 }
