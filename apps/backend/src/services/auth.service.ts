@@ -1,14 +1,14 @@
+import { createHash } from 'crypto';
+
+import type { Prisma, User } from '@afri-dollar/database';
+import bcrypt from 'bcrypt';
+import { addDays } from 'date-fns';
+import * as jwt from 'jsonwebtoken';
+
 /**
  * Auth Service
  * Contains business logic for authentication
  */
-import { createHash } from 'crypto';
-
-import type { User } from '@prisma/client';
-import bcrypt from 'bcrypt';
-import { addDays } from 'date-fns';
-import jwt from 'jsonwebtoken';
-
 import prisma from '../config/database';
 import type { AuthTokens, RegisterRequest, LoginCredentials, JwtPayload } from '../types';
 
@@ -327,20 +327,9 @@ export const AuthService = {
   /**
    * Create audit log entry
    */
-  async createAuditLog(data: {
-    userId?: string;
-    action: string;
-    resource: string;
-    resourceId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-    metadata?: Record<string, unknown>;
-    success?: boolean;
-  }): Promise<void> {
-    /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
+  async createAuditLog(data: Prisma.AuditLogCreateInput): Promise<void> {
     await prisma.auditLog.create({
-      data: data as any,
+      data,
     });
-    /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
   },
 };

@@ -184,6 +184,31 @@ model ExchangeRate {
   @@index([isActive])
 }
 
+// Persisted FX quotes for conversion execution
+model ConversionQuote {
+  id          String   @id @default(cuid())
+  quoteId     String   @unique
+
+  fromAsset   String
+  toAsset     String
+  fromAmount  String
+  toAmount    String
+  rate        String
+  source      String
+
+  walletId    String?
+  status      String   @default("pending") // 'pending', 'executed', 'expired'
+  expiresAt   DateTime
+  executedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([quoteId])
+  @@index([status, expiresAt])
+  @@index([fromAsset, toAsset])
+}
+
 // Audit log for compliance and security
 model AuditLog {
   id          String   @id @default(cuid())
