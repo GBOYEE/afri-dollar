@@ -86,7 +86,10 @@ const SANCTIONED_COUNTRIES = ['KP', 'IR', 'SY', 'CU'];
 async function performSanctionsScreening(
   beneficiaryCountry?: string
 ): Promise<'passed' | 'failed'> {
-  if (beneficiaryCountry && SANCTIONED_COUNTRIES.includes(beneficiaryCountry.toUpperCase())) {
+  if (
+    beneficiaryCountry &&
+    SANCTIONED_COUNTRIES.includes(beneficiaryCountry.trim().toUpperCase())
+  ) {
     return 'failed';
   }
   return 'passed';

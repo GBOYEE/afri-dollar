@@ -234,6 +234,29 @@ describe('PaymentService', () => {
       ).rejects.toThrow('Payment blocked: sanctions screening failed');
     });
 
+    it('should block payment to sanctioned country with whitespace-padded code', async () => {
+      mockWalletFindUnique.mockResolvedValue({
+        id: mockWalletId,
+        userId: mockUserId,
+        publicKey: mockPublicKey,
+      });
+      mockUserFindUnique.mockResolvedValue({
+        id: mockUserId,
+        isVerified: true,
+        kycRecords: [],
+      });
+
+      await expect(
+        PaymentService.createCrossBorderPayment(
+          {
+            ...baseOptions,
+            beneficiaryInfo: { name: 'Test', country: 'KP ' },
+          },
+          mockUserId
+        )
+      ).rejects.toThrow('Payment blocked: sanctions screening failed');
+    });
+
     it('should require beneficiary info for amounts >= 1000', async () => {
       mockWalletFindUnique.mockResolvedValue({
         id: mockWalletId,
