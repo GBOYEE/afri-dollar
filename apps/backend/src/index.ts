@@ -7,6 +7,7 @@ import helmet from 'helmet';
 
 import prisma from './config/database';
 import { errorMiddleware } from './middleware/error.middleware';
+import adminSecurityRouter from './routes/admin-security.routes';
 import authRouter from './routes/auth.routes';
 import fxRouter from './routes/fx.routes';
 import paymentRouter from './routes/payment.routes';
@@ -70,6 +71,10 @@ app.use('/api/v1/treasury', treasuryRouter);
 // Wallet routes
 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 app.use('/api/v1/wallet', walletRouter);
+
+// Admin security routes (brute-force protection dashboard)
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+app.use('/api/v1/admin/security', adminSecurityRouter);
 
 // Global error handler
 app.use(errorMiddleware);

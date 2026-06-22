@@ -5,6 +5,12 @@
 import { Response } from 'express';
 
 import type { AuthRequest } from '../middleware/auth.middleware';
+import {
+  bruteForceProtection,
+  recordFailedAttempt,
+  clearFailedAttempts,
+  flaggedIPRateLimit,
+} from '../middleware/brute-force.middleware';
 import { AuthService } from '../services/auth.service';
 import { AppError } from '../types';
 import type {
@@ -78,11 +84,15 @@ export const AuthController = {
    * Login a user
    */
   async login(req: AuthRequest, res: Response): Promise<void> {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
     try {
       const validatedData = req.body as LoginRequest;
       const deviceInfo = req.headers['user-agent'];
 
       const result = await AuthService.login(validatedData, deviceInfo);
+
+      // Clear failed attempts on successful login
+      clearFailedAttempts(ip);
 
       AuthService.createAuditLog({
         userId: result.user.id,
@@ -100,6 +110,10 @@ export const AuthController = {
       };
       res.status(200).json(response);
     } catch (error) {
+      // Record failed attempt
+      const validatedData = req.body as LoginRequest;
+      recordFailedAttempt(ip, validatedData?.email);
+
       if (error instanceof Error) {
         AuthService.createAuditLog({
           action: 'login',
