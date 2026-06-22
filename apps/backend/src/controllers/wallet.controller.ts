@@ -42,4 +42,45 @@ export const WalletController = {
       handleError(res, error);
     }
   },
+
+  async list(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const wallets = await WalletService.getWalletsByUser(req.user!.userId);
+
+      res.status(200).json({
+        success: true,
+        data: wallets,
+      });
+    } catch (error) {
+      handleError(res, error);
+    }
+  },
+
+  async getById(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const wallet = await WalletService.getWalletById(id, req.user!.userId);
+
+      res.status(200).json({
+        success: true,
+        data: wallet,
+      });
+    } catch (error) {
+      handleError(res, error);
+    }
+  },
+
+  async getBalances(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const balances = await WalletService.getWalletBalances(id, req.user!.userId);
+
+      res.status(200).json({
+        success: true,
+        data: balances,
+      });
+    } catch (error) {
+      handleError(res, error);
+    }
+  },
 };

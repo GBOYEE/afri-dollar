@@ -18,6 +18,10 @@ export const createWalletSchema = z.object({
   network: z.enum(['testnet', 'mainnet']).optional().default('testnet'),
 });
 
+export const walletIdParamSchema = z.object({
+  id: z.string().min(1, 'Wallet ID is required'),
+});
+
 export const createPaymentSchema = z.object({
   toAddress: z.string().length(56, 'Invalid Stellar address'),
   amount: z.string().regex(/^\d+(\.\d+)?$/, 'Invalid amount format'),

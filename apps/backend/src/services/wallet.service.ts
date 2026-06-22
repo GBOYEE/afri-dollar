@@ -43,4 +43,50 @@ export const WalletService = {
       secretKey,
     };
   },
+
+  async getWalletsByUser(userId: string): Promise<WalletWithKeys[]> {
+    const wallets = await prisma.wallet.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return wallets.map((w) => ({
+      id: w.id,
+      publicKey: w.publicKey,
+    }));
+  },
+
+  async getWalletById(walletId: string, userId: string): Promise<WalletWithKeys> {
+    const wallet = await prisma.wallet.findFirst({
+      where: { id: walletId, userId },
+    });
+
+    if (!wallet) {
+      throw new AppError(404, 'Wallet not found');
+    }
+
+    return {
+      id: wallet.id,
+      publicKey: wallet.publicKey,
+    };
+  },
+
+  async getWalletBalances(walletId: string, userId: string) {
+    const wallet = await prisma.wallet.findFirst({
+      where: { id: walletId, userId },
+    });
+
+    if (!wallet) {
+      throw new AppError(404, 'Wallet not found');
+    }
+
+    const balances = await StellarService.getAccountBalances(wallet.publicKey);
+
+    return {
+      walletId: wallet.id,
+      publicKey: wallet.publicKey,
+      network: wallet.network,
+      balances,
+    };
+  },
 };
