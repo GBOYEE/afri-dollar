@@ -6,7 +6,7 @@ scale to many contracts and shared libraries without changing its layout.
 
 ## Layout
 
-```
+```text
 apps/contracts/
 ├── Cargo.toml            # Workspace root (globs members, shared deps, release profile)
 ├── Cargo.lock            # Committed for reproducible builds

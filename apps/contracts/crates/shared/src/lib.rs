@@ -31,6 +31,8 @@ pub enum Error {
     NotInitialized = 2,
     /// The caller is not authorized to perform the operation.
     Unauthorized = 3,
+    /// The counter overflowed past u32::MAX.
+    CounterOverflow = 4,
 }
 
 /// Extend the TTL of the contract's instance storage.

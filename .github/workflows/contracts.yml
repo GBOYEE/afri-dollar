@@ -11,6 +11,10 @@ on:
       - 'apps/contracts/**'
       - '.github/workflows/contracts.yml'
 
+# Least-privilege token scopes for security.
+permissions:
+  contents: read
+
 # Cancel superseded runs on the same ref to save CI minutes.
 concurrency:
   group: contracts-${{ github.workflow }}-${{ github.ref }}
@@ -30,6 +34,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable

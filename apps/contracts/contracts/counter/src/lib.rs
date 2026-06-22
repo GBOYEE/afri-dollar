@@ -50,6 +50,7 @@ impl CounterContract {
         if env.storage().instance().has(&DataKey::Admin) {
             return Err(Error::AlreadyInitialized);
         }
+        admin.require_auth();
 
         env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage().instance().set(&DataKey::Counter, &0u32);
@@ -66,7 +67,7 @@ impl CounterContract {
             .get(&DataKey::Counter)
             .ok_or(Error::NotInitialized)?;
 
-        count += 1;
+        count = count.checked_add(1).ok_or(Error::CounterOverflow)?;
         env.storage().instance().set(&DataKey::Counter, &count);
         extend_instance_ttl(&env);
 
