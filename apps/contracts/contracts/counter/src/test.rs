@@ -69,6 +69,28 @@ fn increment_emits_event() {
 }
 
 #[test]
+fn reset_without_auth_panics() {
+    let (_env, _id, client, admin) = setup();
+    client.initialize(&admin);
+    // No mock auths — should panic
+    client.reset();
+}
+
+#[test]
+fn increment_at_max_u32_errors_with_overflow() {
+    let (env, _id, client, admin) = setup();
+    client.initialize(&admin);
+
+    // Set counter to u32::MAX
+    env.as_contract(_id, || {
+        env.storage().instance().set(&DataKey::Counter, &u32::MAX);
+    });
+
+    let result = client.try_increment();
+    assert_eq!(result, Err(Ok(Error::CounterOverflow)));
+}
+
+#[test]
 fn reset_requires_admin_auth_and_zeroes_counter() {
     let (env, _id, client, admin) = setup();
     client.initialize(&admin);
