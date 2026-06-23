@@ -1,5 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 
+import logger from '../config/logger';
+
 export const ERROR_CODES = {
   AUTH_001: 'Invalid credentials',
   AUTH_002: 'Token expired',
@@ -75,7 +77,7 @@ export function errorMiddleware(
   }
 
   // Log unexpected errors but don't expose internals
-  console.error('Unexpected error:', err);
+  logger.error('Unexpected error', { error: err.message, stack: err.stack });
 
   res.status(500).json({
     success: false,

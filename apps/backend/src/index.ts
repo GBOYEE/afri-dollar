@@ -5,6 +5,7 @@ import { config } from 'dotenv';
 import express, { json, urlencoded } from 'express';
 import helmet from 'helmet';
 
+import logger from './config/logger';
 import prisma from './config/database';
 import { errorMiddleware } from './middleware/error.middleware';
 import authRouter from './routes/auth.routes';
@@ -79,13 +80,13 @@ async function startServer(): Promise<void> {
   try {
     // Check database connection
     await prisma.$connect();
-    console.log('🐘 Database connected successfully');
+    logger.info('Database connected successfully');
 
     app.listen(PORT, () => {
-      console.log(`🚀 AfriDollar Backend API running on port ${PORT}`);
+      logger.info(`AfriDollar Backend API running on port ${PORT}`);
     });
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    logger.error('Database connection failed', { error });
     process.exit(1);
   }
 }
@@ -94,11 +95,11 @@ void startServer();
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
+  logger.info('SIGTERM signal received: closing HTTP server');
   void prisma.$disconnect().then(() => process.exit(0));
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
+  logger.info('SIGINT signal received: closing HTTP server');
   void prisma.$disconnect().then(() => process.exit(0));
 });
