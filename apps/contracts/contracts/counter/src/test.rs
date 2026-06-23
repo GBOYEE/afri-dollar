@@ -81,3 +81,12 @@ fn reset_requires_admin_auth_and_zeroes_counter() {
     client.reset();
     assert_eq!(client.get_count(), 0);
 }
+
+#[test]
+#[should_panic]
+fn reset_without_auth_panics() {
+    let (_env, _id, client, admin) = setup();
+    client.initialize(&admin);
+    // No mock auths — should panic
+    client.reset();
+}

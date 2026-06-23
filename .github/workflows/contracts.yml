@@ -11,6 +11,9 @@ on:
       - 'apps/contracts/**'
       - '.github/workflows/contracts.yml'
 
+permissions:
+  contents: read
+
 # Cancel superseded runs on the same ref to save CI minutes.
 concurrency:
   group: contracts-${{ github.workflow }}-${{ github.ref }}
@@ -29,16 +32,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
         with:
           components: rustfmt, clippy
           targets: wasm32v1-none
 
       - name: Cache cargo registry and build output
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@42dc69e1aa15d09112580998cf2ef0119e2e91ae # v2
         with:
           workspaces: apps/contracts
 
@@ -58,7 +63,7 @@ jobs:
         run: cargo build --release --target wasm32v1-none
 
       - name: Upload WASM artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: soroban-wasm
           path: apps/contracts/target/wasm32v1-none/release/*.wasm
